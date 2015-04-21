@@ -24,20 +24,18 @@ class EventTest extends FlatSpec {
     assert("New Event"==e.title)
   }
 
-  "A Map" should "operate over items" in {
-    val m = scala.collection.mutable.Map[Integer, String]();
-    m(1) = "Test1";
-    assert("Test1".equals(m(1)))
-    m(1) = "Another Test";
-    assert("Another Test".equals(m(1)))
+  "An Event" should "print nicely to the output" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 17, 30, 0)
+    val startDate = c.getTime
+    c.set(2015, 4, 19, 18, 30, 0)
+    val endDate = c.getTime
+    val title = "This is a new event";
+    val e = Event(startDate, endDate, title);
+
+    val s: String = s"Event: $title (Start Date: 19/05/2015 17:30:00 - End Date: 19/05/2015 18:30:00)";
+    assert(s==e.toString)
+    print(e)
   }
 
-  "A List" should "operate over items" in {
-    val l = scala.collection.mutable.MutableList(1, 2, 3)
-    assert(1==l(0))
-    l+=4
-    assert(4==l(3))
-
-    assert(true==new mutable.MutableList[String]().isEmpty)
-  }
 }

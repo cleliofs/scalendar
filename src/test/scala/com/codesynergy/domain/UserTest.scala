@@ -32,5 +32,10 @@ class UserTest extends FlatSpec {
     assert(User("cleliofs")==u)
   }
 
+  "A User" should "print nicely" in {
+    val u = User("cleliofs", "Clelio", "De Souza", "cleliofs@gmail.com", "Code Synergy")
+    val s = s"Username: cleliofs - Email: cleliofs@gmail.com (Clelio De Souza - Code Synergy)"
+    assert(s==u.toString)
+  }
 
 }

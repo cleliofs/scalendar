@@ -10,4 +10,6 @@ case class User(
     var email: String = "",
     var company: String = "") {
 
+
+    override def toString: String = s"Username: $username - Email: $email ($name $surname - $company)"
 }

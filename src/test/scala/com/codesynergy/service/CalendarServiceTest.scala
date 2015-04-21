@@ -114,4 +114,57 @@ class CalendarServiceTest extends FlatSpec {
     calendar.addEvent(User("cleliofs"), e2)
     assert(true==calendar.checkEventsClash(User("cleliofs")))
   }
+
+  "A CalendarService" should "allow users to adjust/amend events" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 10, 0)
+    val startDateEvent1 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent1 = c.getTime
+    val e1 = Event(startDateEvent1, endDateEvent1, "New Event 1")
+
+    c.set(2015, 4, 19, 10, 30)
+    val startDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 10, 45)
+    val endDateEvent2 = c.getTime
+    val e2 = Event(startDateEvent2, endDateEvent2, "New Event 2")
+
+    val calendar = new CalendarService
+    calendar.save(User("cleliofs"))
+    calendar.addEvent(User("cleliofs"), e1)
+    calendar.addEvent(User("cleliofs"), e2)
+    assert(true==calendar.checkEventsClash(User("cleliofs")))
+
+    c.set(2015, 4, 19, 11, 0)
+    val newStartDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 11, 15)
+    val newEndDateEvent2 = c.getTime
+    val newE2 = Event(newStartDateEvent2, newEndDateEvent2, "New Event 222")
+    calendar.modifyEvent(User("cleliofs"), e2.title, newE2)
+    assert(false==calendar.checkEventsClash(User("cleliofs")))
+  }
+
+  "A CalendarService" should "find for event in the users' events" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 10, 0)
+    val startDateEvent1 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent1 = c.getTime
+    val e1 = Event(startDateEvent1, endDateEvent1, "New Event 1")
+
+    c.set(2015, 4, 19, 10, 30)
+    val startDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 10, 45)
+    val endDateEvent2 = c.getTime
+    val e2 = Event(startDateEvent2, endDateEvent2, "New Event 2")
+
+    val calendar = new CalendarService
+    calendar.save(User("cleliofs"))
+    calendar.addEvent(User("cleliofs"), e1)
+    calendar.addEvent(User("cleliofs"), e2)
+
+    assert(e1==calendar.findEventByTitle(User("cleliofs"), "New Event 1"))
+  }
+
+
 }

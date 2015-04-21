@@ -41,4 +41,9 @@ class CalendarService {
     events(u).count(hasClashed(_, events(u).toList))!=0
   }
 
+  def modifyEvent(u: User, eventTitle: String, newEvent: Event): Unit = {
+    events(u)=events(u).map(i => if (i.title==eventTitle) newEvent else i)
+  }
+
+  def findEventByTitle(u: User, title: String): Event = events(u).find(_.title==title).get
 }
