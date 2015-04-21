@@ -47,7 +47,71 @@ class CalendarServiceTest extends FlatSpec {
     calendar.save(User("cleliofs"))
     calendar.addEvent(User("cleliofs"), e1)
     calendar.addEvent(User("cleliofs"), e2)
-    assert(2==calendar.events.size)
+    assert(2==calendar.events(User("cleliofs")).size)
+    assert(true==calendar.events(User("cleliofs")).contains(e1))
+    assert(true==calendar.events(User("cleliofs")).contains(e2))
   }
 
+  "A CalendarService" should "check events do not clash for user" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 10, 0)
+    val startDateEvent1 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent1 = c.getTime
+    val e1 = Event(startDateEvent1, endDateEvent1, "New Event 1")
+
+    c.set(2015, 4, 19, 11, 0)
+    val startDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 12, 0)
+    val endDateEvent2 = c.getTime
+    val e2 = Event(startDateEvent2, endDateEvent2, "New Event 2")
+
+    val calendar = new CalendarService
+    calendar.save(User("cleliofs"))
+    calendar.addEvent(User("cleliofs"), e1)
+    calendar.addEvent(User("cleliofs"), e2)
+    assert(false==calendar.checkEventsClash(User("cleliofs")))
+  }
+
+  "A CalendarService" should "check events clashed for user 1" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 10, 0)
+    val startDateEvent1 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent1 = c.getTime
+    val e1 = Event(startDateEvent1, endDateEvent1, "New Event 1")
+
+    c.set(2015, 4, 19, 10, 30)
+    val startDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent2 = c.getTime
+    val e2 = Event(startDateEvent2, endDateEvent2, "New Event 2")
+
+    val calendar = new CalendarService
+    calendar.save(User("cleliofs"))
+    calendar.addEvent(User("cleliofs"), e1)
+    calendar.addEvent(User("cleliofs"), e2)
+    assert(true==calendar.checkEventsClash(User("cleliofs")))
+  }
+
+  "A CalendarService" should "check events clashed for user 2" in {
+    val c = Calendar.getInstance
+    c.set(2015, 4, 19, 10, 0)
+    val startDateEvent1 = c.getTime
+    c.set(2015, 4, 19, 11, 0)
+    val endDateEvent1 = c.getTime
+    val e1 = Event(startDateEvent1, endDateEvent1, "New Event 1")
+
+    c.set(2015, 4, 19, 10, 30)
+    val startDateEvent2 = c.getTime
+    c.set(2015, 4, 19, 10, 45)
+    val endDateEvent2 = c.getTime
+    val e2 = Event(startDateEvent2, endDateEvent2, "New Event 2")
+
+    val calendar = new CalendarService
+    calendar.save(User("cleliofs"))
+    calendar.addEvent(User("cleliofs"), e1)
+    calendar.addEvent(User("cleliofs"), e2)
+    assert(true==calendar.checkEventsClash(User("cleliofs")))
+  }
 }
