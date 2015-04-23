@@ -2,6 +2,7 @@ package main.scala.com.codesynergy.service
 
 import main.scala.com.codesynergy.domain.{Event, User}
 
+import scala.annotation.tailrec
 import scala.collection.mutable.Map
 import scala.collection.mutable.MutableList
 
@@ -32,6 +33,7 @@ class CalendarService {
   }
 
   def checkEventsClash(u: User) = {
+    @tailrec
     def hasClashed(e: Event, list: List[Event]): Boolean = {
       if (list == Nil) false
       else if (e.eq(list.head)) hasClashed(e, list.tail)
