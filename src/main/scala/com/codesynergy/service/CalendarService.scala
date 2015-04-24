@@ -32,11 +32,11 @@ class CalendarService {
   }
 
   def checkEventsClash(u: User) = {
-    def hasClashed(e: Event, list: List[Event]): Boolean = {
-      if (list == Nil) false
-      else if (e.eq(list.head)) hasClashed(e, list.tail)
-      else if (list.head.startDate.after(e.startDate) && list.head.startDate.before(e.endDate)) true
-      else hasClashed(e, list.tail)
+    def hasClashed(e: Event, list: List[Event]): Boolean = list match {
+      case Nil => false
+      case h::tail if (e.eq(list.head)) => hasClashed(e, tail)
+      case h::tail if (h.startDate.after(e.startDate) && h.startDate.before(e.endDate)) => true
+      case h::tail => hasClashed(e, tail)
     }
     events(u).count(hasClashed(_, events(u).toList))!=0
   }
