@@ -1,6 +1,6 @@
 // @SOURCE:/home/clelio/IdeaProjects/scalendar/conf/routes
-// @HASH:4f41fe2b6f59f0d1d4aec1fd7f4615d1d3133677
-// @DATE:Sat Apr 25 18:44:57 BST 2015
+// @HASH:3454372fa67385e70e94efd9dd3adeebbb2fd6e5
+// @DATE:Sat Apr 25 20:15:55 BST 2015
 
 package controllers;
 

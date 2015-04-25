@@ -21,7 +21,7 @@ object index extends BaseScalaTemplate[play.twirl.api.HtmlFormat.Appendable,Form
 
 Seq[Any](format.raw/*1.19*/("""
 
-"""),_display_(/*3.2*/main("Welcome to Play")/*3.25*/ {_display_(Seq[Any](format.raw/*3.27*/("""
+"""),_display_(/*3.2*/main("Welcome to Play!")/*3.26*/ {_display_(Seq[Any](format.raw/*3.28*/("""
 
     """),_display_(/*5.6*/play20/*5.12*/.welcome(message)),format.raw/*5.29*/("""
 
@@ -38,10 +38,10 @@ Seq[Any](format.raw/*1.19*/("""
 }
               /*
                   -- GENERATED --
-                  DATE: Sat Apr 25 18:44:58 BST 2015
+                  DATE: Sat Apr 25 19:39:58 BST 2015
                   SOURCE: /home/clelio/IdeaProjects/scalendar/app/views/index.scala.html
-                  HASH: 6ccab1e3b2ad8ca4c9794c22023c616c4b7c730b
-                  MATRIX: 505->1|610->18|638->21|669->44|708->46|740->53|754->59|791->76|823->79
+                  HASH: 8895fb91671b33f0da464aa2f9a404383aa1f4c3
+                  MATRIX: 505->1|610->18|638->21|670->45|709->47|741->54|755->60|792->77|824->80
                   LINES: 19->1|22->1|24->3|24->3|24->3|26->5|26->5|26->5|28->7
                   -- GENERATED --
               */

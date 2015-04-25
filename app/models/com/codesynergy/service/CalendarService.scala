@@ -24,6 +24,8 @@ class CalendarService {
     users += u
   }
 
+  def getUsers: List[User] = users.toList
+
   def showUsers: Unit = users.foreach(println)
 
   def addEvent(u: User, e: Event): Unit = {
