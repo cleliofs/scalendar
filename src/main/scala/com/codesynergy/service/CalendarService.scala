@@ -40,7 +40,7 @@ class CalendarService {
       case h::tail if (h.startDate.after(e.startDate) && h.startDate.before(e.endDate)) => true
       case h::tail => hasClashed(e, tail)
     }
-    
+
     events(u).count(hasClashed(_, events(u).toList))!=0
   }
 
