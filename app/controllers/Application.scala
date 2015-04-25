@@ -23,8 +23,8 @@ object Application extends Controller {
     Ok(html.hello("Hi Clelio!")("Hello world, Clelio!"))
   }
 
-  def scalendar = Action {
-    Ok(html.scalendar(c.getUsers.toString()))
+  def users = Action {
+    Ok(html.users(c.getUsers.toString()))
   }
 
 }
