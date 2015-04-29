@@ -23,8 +23,25 @@ object Application extends Controller {
     Ok(html.hello("Hi Clelio!")("Hello world, Clelio!"))
   }
 
+  def sayHello = Action(parse.json) { request =>
+      (request.body \ "name").asOpt[String].map { name =>
+        Ok(s"Hello $name\n")
+      }.getOrElse {
+        BadRequest("Missing parameter [name]")
+      }
+  }
+
   def users = Action {
-    Ok(html.users(c.getUsers.toString()))
+//    (request.body \ "name").asOpt[String].map { name =>
+//      Ok(toJson(
+//        Map("status" -> "OK", "message" -> ("Hello " + name))
+//      ))
+//    }.getOrElse {
+//      BadRequest(toJson(
+//        Map("status" -> "OK", "message" -> "Missing parameter [name]")
+//      ))
+//    }
+    Ok(html.users(c.getUsers.map(_.json).mkString("{", ",", "}")))
   }
 
 }
