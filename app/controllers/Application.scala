@@ -2,6 +2,7 @@ package controllers
 
 import main.scala.com.codesynergy.domain.User
 import main.scala.com.codesynergy.service.CalendarService
+import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
 import views.html
 
@@ -25,7 +26,7 @@ object Application extends Controller {
 
   def sayHello = Action(parse.json) { request =>
       (request.body \ "name").asOpt[String].map { name =>
-        Ok(s"Hello $name\n")
+        Ok(Json.toJson(s"Hello $name"))
       }.getOrElse {
         BadRequest("Missing parameter [name]")
       }
