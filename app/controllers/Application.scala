@@ -2,7 +2,7 @@ package controllers
 
 import main.scala.com.codesynergy.domain.User
 import main.scala.com.codesynergy.service.CalendarService
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, Json}
 import play.api.mvc.{Action, Controller}
 import views.html
 
@@ -26,23 +26,28 @@ object Application extends Controller {
 
   def sayHello = Action(parse.json) { request =>
       (request.body \ "name").asOpt[String].map { name =>
-        Ok(Json.toJson(s"Hello $name"))
+        Ok(Json.toJson(Map("status" -> "OK", "message" -> (s"Hello $name"))))
       }.getOrElse {
-        BadRequest("Missing parameter [name]")
+        BadRequest(Json.toJson(
+          Map("status" -> "OK", "message" -> "Missing parameter [name]")))
       }
   }
 
-  def users = Action {
-//    (request.body \ "name").asOpt[String].map { name =>
-//      Ok(toJson(
-//        Map("status" -> "OK", "message" -> ("Hello " + name))
-//      ))
-//    }.getOrElse {
-//      BadRequest(toJson(
-//        Map("status" -> "OK", "message" -> "Missing parameter [name]")
-//      ))
-//    }
-    Ok(html.users(c.getUsers.map(_.json).mkString("{", ",", "}")))
+  def getUsers = Action { request =>
+    Ok(Json.toJson(c.getUsers.map(_.json).mkString("{", ",", "}")))
+  }
+
+  def saveUser = Action(parse.json) { request =>
+   val result = request.body.validate[User]
+    result.fold(
+      errors => {
+        BadRequest(Json.obj("status" -> "KO", "message" -> JsError.toFlatJson(errors)))
+      },
+      user => {
+        c.save(user)
+        Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+      }
+    )
   }
 
 }

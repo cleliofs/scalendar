@@ -28,4 +28,5 @@ case class User(
 val u1 = User("cleliofs", "Clelio", "De Souza")
 val u2 = User("newuser", "Test", "De Souza")
 val list = List(u1,u2)
-list.map(_.json).mkString("{", ",", "}")
+val l2 = list.map(_.json)
+l2(0)

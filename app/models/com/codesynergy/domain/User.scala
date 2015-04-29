@@ -1,6 +1,7 @@
 package main.scala.com.codesynergy.domain
 
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 /**
  * Created by clelio on 19/04/15.
@@ -16,6 +17,9 @@ case class User(
 
     def json: JsValue = Json.toJson(this)
 
+}
+
+object User {
     implicit val userWrites = new Writes[User] {
         def writes(user: User) = Json.obj(
             "username" -> user.username,
@@ -25,4 +29,12 @@ case class User(
             "company" -> user.company
         )
     }
+
+    implicit  val userReads: Reads[User] = (
+        (JsPath \ "username").read[String] and
+        (JsPath \ "name").read[String] and
+        (JsPath \ "surname").read[String] and
+        (JsPath \ "email").read[String] and
+        (JsPath \ "company").read[String]
+    )(User.apply(_, _, _ ,_ ,_))
 }
