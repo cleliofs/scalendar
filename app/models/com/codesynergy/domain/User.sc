@@ -1,8 +1,6 @@
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
-/**
- * Created by clelio on 19/04/15.
- */
 case class User(
                  var username: String = "",
                  var name: String = "",
@@ -12,7 +10,12 @@ case class User(
 
   override def toString: String = s"Username: $username - Email: $email ($name $surname - $company)"
 
-  def json: JsValue = Json.toJson(this)
+//  def json: JsValue = Json.toJson(this)
+}
+
+
+object User {
+//  implicit val userFormat = Json.format[User]
 
   implicit val userWrites = new Writes[User] {
     def writes(user: User) = Json.obj(
@@ -23,10 +26,18 @@ case class User(
       "company" -> user.company
     )
   }
+  implicit  val userReads: Reads[User] = (
+    (JsPath \ "username").read[String] and
+      (JsPath \ "name").read[String] and
+      (JsPath \ "surname").read[String] and
+      (JsPath \ "email").read[String] and
+      (JsPath \ "company").read[String]
+    )(User.apply(_, _, _ ,_ ,_))
 }
+
 
 val u1 = User("cleliofs", "Clelio", "De Souza")
 val u2 = User("newuser", "Test", "De Souza")
 val list = List(u1,u2)
-val l2 = list.map(_.json)
-l2(0)
+println(Json.toJson(list))
+Json.toJson(List(u1))

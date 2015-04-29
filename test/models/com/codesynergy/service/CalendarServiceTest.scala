@@ -18,10 +18,10 @@ class CalendarServiceTest extends FlatSpec {
 
     val c = new CalendarService;
     c.save(u1)
-    assert(User("cleliofs")==c.find(u1).get)
+    assert(User("cleliofs")==c.findUserByUsername(u1).get)
     c.save(u2)
-    assert(User("newuser")==c.find(u2).get)
-    assert(Nil==c.find(User("otheruser")).getOrElse(Nil))
+    assert(User("newuser")==c.findUserByUsername(u2).get)
+    assert(Nil==c.findUserByUsername(User("otheruser")).getOrElse(Nil))
   }
 
   "A CalendarService" should "show all registered users" in {

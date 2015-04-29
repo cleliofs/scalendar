@@ -6,7 +6,7 @@
 GET     /                           controllers.Application.index
 GET     /hello                      controllers.Application.hello
 GET     /users                      controllers.Application.getUsers
-GET     /users/{username}           controllers.Application.getUserByUsername
+GET     /users/:username            controllers.Application.getUserByUsername(username: String)
 PUT     /users                      controllers.Application.saveUser
 POST    /sayHello                   controllers.Application.sayHello
 

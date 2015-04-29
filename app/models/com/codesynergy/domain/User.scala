@@ -15,11 +15,13 @@ case class User(
 
     override def toString: String = s"Username: $username - Email: $email ($name $surname - $company)"
 
-    def json: JsValue = Json.toJson(this)
+//    def json: JsValue = Json.toJson(this)
 
 }
 
 object User {
+    implicit val userFormat = Json.format[User]
+
     implicit val userWrites = new Writes[User] {
         def writes(user: User) = Json.obj(
             "username" -> user.username,

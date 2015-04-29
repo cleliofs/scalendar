@@ -16,7 +16,7 @@ class CalendarService {
 
   var events = Map[User, MutableList[Event]]()
 
-  def find(u: User): Option[User] = {
+  def findUserByUsername(u: User): Option[User] = {
     users.find(e => e.username == u.username)
   }
 
