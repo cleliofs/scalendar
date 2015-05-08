@@ -1,7 +1,10 @@
 package main.scala.com.codesynergy.domain
 
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Created by clelio on 19/04/15.
@@ -11,12 +14,23 @@ case class User(
     var name: String = "",
     var surname: String = "",
     var email: String = "",
-    var company: String = "") {
+    var company: String = "",
+    var events: mutable.Buffer[Event] = ArrayBuffer()) extends Ordered[User] {
 
-    override def toString: String = s"Username: $username - Email: $email ($name $surname - $company)"
+    def addEvent(e: Event) = events +=e
 
-//    def json: JsValue = Json.toJson(this)
+    override def toString: String = {
+        s"Username: $username - Email: $email ($name $surname - $company) - Events: [$events]"
+    }
 
+    override def compare(that: User): Int = username.compareTo(that.username)
+
+    override def hashCode(): Int = 41 * username.hashCode
+
+    override def equals(other: scala.Any): Boolean = other match {
+        case that: User => username.equals(that.username)
+        case _ => false
+    }
 }
 
 object User {
@@ -28,7 +42,8 @@ object User {
             "name" -> user.name,
             "surname" -> user.surname,
             "email" -> user.email,
-            "company" -> user.company
+            "company" -> user.company,
+            "events" -> user.events
         )
     }
 
@@ -37,6 +52,7 @@ object User {
         (JsPath \ "name").read[String] and
         (JsPath \ "surname").read[String] and
         (JsPath \ "email").read[String] and
-        (JsPath \ "company").read[String]
-    )(User.apply(_, _, _ ,_ ,_))
+        (JsPath \ "company").read[String] and
+        (JsPath \ "events").read[mutable.Buffer[Event]]
+    )(User.apply(_, _, _ ,_ ,_ , _))
 }

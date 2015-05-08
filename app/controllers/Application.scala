@@ -1,8 +1,8 @@
 package controllers
 
-import main.scala.com.codesynergy.domain.User
+import main.scala.com.codesynergy.domain.{Event, User}
 import main.scala.com.codesynergy.service.CalendarService
-import play.api.libs.json.{JsResult, JsError, Json}
+import play.api.libs.json.{JsError, JsResult, Json}
 import play.api.mvc.{Action, Controller}
 import views.html
 
@@ -51,15 +51,37 @@ object Application extends Controller {
 
   }
 
+  def getEventsByUsername(username: String) = Action { request =>
+    c.findUserByUsername(User(username)).map { user =>
+      Ok(Json.toJson(user.events))
+    }.getOrElse {
+      NotFound(Json.toJson(
+        Map("status" -> "OK", "message" -> s"User not found [$username]")
+      ))
+    }
+  }
+
+
   def saveUser = Action(parse.json) { request =>
    val result: JsResult[User] = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors))),
+      user => {
+        c.save(user)
+        Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+      }
+    )
+  }
+
+  def addEvent(username: String) = Action(parse.json) { request =>
+    val result = request.body.validate[Event]
     result.fold(
       errors => {
         BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors)))
       },
-      user => {
-        c.save(user)
-        Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+      event => {
+        c.addEventToUser(User(username), event)
+        Ok(Json.obj("status" -> "OK", "message" -> (event + s" saved to user $username")))
       }
     )
   }

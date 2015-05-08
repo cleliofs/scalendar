@@ -6,8 +6,10 @@
 GET     /                           controllers.Application.index
 GET     /hello                      controllers.Application.hello
 GET     /users                      controllers.Application.getUsers
-GET     /users/:username            controllers.Application.getUserByUsername(username: String)
 PUT     /users                      controllers.Application.saveUser
+GET     /users/:username            controllers.Application.getUserByUsername(username: String)
+GET     /users/:username/events     controllers.Application.getEventsByUsername(username: String)
+PUT     /users/:username/events     controllers.Application.addEvent(username: String)
 POST    /sayHello                   controllers.Application.sayHello
 
 # Map static resources from the /public folder to the /assets URL path

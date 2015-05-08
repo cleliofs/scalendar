@@ -3,18 +3,17 @@ package main.scala.com.codesynergy.service
 import main.scala.com.codesynergy.domain.{Event, User}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.Map
-import scala.collection.mutable.MutableList
+import scala.collection.mutable
+import scala.collection.mutable.{ArrayBuffer, Map, MutableList}
 
 /**
  * Created by clelio on 19/04/15.
  */
 class CalendarService {
 
+  private var users = mutable.TreeSet[User]()
 
-  private var users = MutableList[User]()
-
-  var events = Map[User, MutableList[Event]]()
+  var events = mutable.Map[User, ArrayBuffer[Event]]()
 
   def findUserByUsername(u: User): Option[User] = {
     users.find(e => e.username == u.username)
@@ -24,22 +23,24 @@ class CalendarService {
     users += u
   }
 
+  def addEventToUser(u: User, e: Event): Unit = {
+    if (!users.contains(u)) save(u)
+    if (!events.contains(u)) events(u) = ArrayBuffer()
+
+    events(u) += e
+    users.find(_ == u).get.addEvent(e)
+  }
+
   def getUsers: List[User] = users.toList
 
   def showUsers: Unit = users.foreach(println)
-
-  def addEvent(u: User, e: Event): Unit = {
-    if (!events.contains(u)) events(u) = MutableList()
-
-    events(u) += e
-  }
 
   def checkEventsClash(u: User) = {
     @tailrec
     def hasClashed(e: Event, list: List[Event]): Boolean = list match {
       case Nil => false
-      case h::tail if (e.eq(list.head)) => hasClashed(e, tail)
-      case h::tail if (h.startDate.after(e.startDate) && h.startDate.before(e.endDate)) => true
+      case h::tail if e.eq(list.head) => hasClashed(e, tail)
+      case h::tail if h.startDate.toDate.after(e.startDate.toDate) && h.startDate.toDate.before(e.endDate.toDate) => true
       case h::tail => hasClashed(e, tail)
     }
 
