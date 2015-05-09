@@ -4,3 +4,4 @@ project/target/*
 logs/
 .idea/
 *.iml
+h2/*

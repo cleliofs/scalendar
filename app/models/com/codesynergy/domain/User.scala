@@ -7,12 +7,12 @@ import play.api.libs.json._
  * Created by clelio on 19/04/15.
  */
 case class User(
-    var username: String = "",
-    var name: String = "",
-    var surname: String = "",
-    var email: String = "",
-    var company: String = "",
-    var events: Seq[Event] = Seq()) extends Ordered[User] {
+    username: String = "",
+    name: String = "",
+    surname: String = "",
+    email: String = "",
+    company: String = "",
+    events: Set[Event] = Set()) extends Ordered[User] {
 
     override def toString: String = {
         s"Username: $username - Email: $email ($name $surname - $company) - Events: [$events]"
@@ -48,6 +48,6 @@ object User {
         (JsPath \ "surname").read[String] and
         (JsPath \ "email").read[String] and
         (JsPath \ "company").read[String] and
-        (JsPath \ "events").read[Seq[Event]]
+        (JsPath \ "events").read[Set[Event]]
     )(User.apply(_, _, _ ,_ ,_ , _))
 }

@@ -9,6 +9,14 @@ import views.html
 object Application extends Controller {
 
   val calendarService = new CalendarService
+//
+//  val u1 = User("cleliofs", "Clelio", "De Souza", "cleliofs@gmail.com", "Code Synergy")
+//  val u2 = User("josi", "Josirene", "Souza")
+//  val u3 = User("marcel", "Marcel", "Sato")
+//
+//  calendarService.save(u1)
+//  calendarService.save(u2)
+//  calendarService.save(u3)
 
   def index = Action {
     Ok(views.html.index("Hi Clelio, your new application is ready."))
@@ -28,6 +36,11 @@ object Application extends Controller {
           )
         )
       }
+  }
+
+  def getCalendar = Action { request =>
+    Ok(Json.toJson(calendarService.getCalendar))
+
   }
 
   def getUsers = Action { request =>

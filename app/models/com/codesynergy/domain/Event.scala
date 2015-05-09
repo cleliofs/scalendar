@@ -10,7 +10,7 @@ import play.api.libs.json.{JsPath, Reads, Json, Writes}
 /**
  * Created by clelio on 19/04/15.
  */
-case class Event(var startDate: DateTime, var endDate: DateTime, var title: String = "") {
+case class Event(startDate: DateTime, endDate: DateTime, title: String = "") {
 
   override def toString: String = {
     s"Event: $title (Start Date: ${startDate.toString(Event.pattern)} - End Date: ${endDate.toString(Event.pattern)})"

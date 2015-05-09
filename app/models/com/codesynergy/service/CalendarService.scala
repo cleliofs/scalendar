@@ -1,36 +1,34 @@
 package main.scala.com.codesynergy.service
 
 import main.scala.com.codesynergy.domain.{Event, User}
-import models.com.codesynergy.domain.Db
+import models.com.codesynergy.domain.{Calendar, DB}
 
-import scala.None
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, Map, MutableList}
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Created by clelio on 19/04/15.
  */
 class CalendarService {
 
+  var users: Seq[User] = Seq()
+
   var events = mutable.Map[User, ArrayBuffer[Event]]()
 
+  def getCalendar = DB.query[Calendar].fetch
+
   def findUserByUsername(u: User): Option[User] = {
-    Db.query[User].whereEqual("username", u.username).fetchOne()
+    DB.query[User].whereEqual("username", u.username).fetchOne()
   }
 
   def save(u: User): Unit = {
-    Db.save(u)
+    DB.save(u)
   }
 
   def addEventToUser(u: User, e: Event): Unit = {
-    val user = findUserByUsername(u)
-    Db.save(u.copy(events = Seq(e)))
-
-//    user match {
-//      case Some(User) =>
-//      case None(User) =>
-//    }
+//    val user = findUserByUsername(u)
+    DB.save(u.copy(events = Set(e)))
 
 //    if (!users.contains(u)) save(u)
 //    if (!events.contains(u)) events(u) = ArrayBuffer()
@@ -39,7 +37,7 @@ class CalendarService {
 //    users.find(_ == u).get.addEvent(e)
   }
 
-  def getUsers: Seq[User] = Db.query[User].fetch
+  def getUsers = DB.query[User].fetch
 
   def showUsers: Unit = getUsers.foreach(println)
 

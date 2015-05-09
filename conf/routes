@@ -5,6 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /hello                      controllers.Application.hello
+GET     /calendar                   controllers.Application.getCalendar
 GET     /users                      controllers.Application.getUsers
 PUT     /users                      controllers.Application.saveUser
 GET     /users/:username            controllers.Application.getUserByUsername(username: String)
