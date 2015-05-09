@@ -1,7 +1,9 @@
 package main.scala.com.codesynergy.service
 
 import main.scala.com.codesynergy.domain.{Event, User}
+import models.com.codesynergy.domain.Db
 
+import scala.None
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, Map, MutableList}
@@ -11,29 +13,35 @@ import scala.collection.mutable.{ArrayBuffer, Map, MutableList}
  */
 class CalendarService {
 
-  private var users = mutable.TreeSet[User]()
-
   var events = mutable.Map[User, ArrayBuffer[Event]]()
 
   def findUserByUsername(u: User): Option[User] = {
-    users.find(e => e.username == u.username)
+    Db.query[User].whereEqual("username", u.username).fetchOne()
   }
 
   def save(u: User): Unit = {
-    users += u
+    Db.save(u)
   }
 
   def addEventToUser(u: User, e: Event): Unit = {
-    if (!users.contains(u)) save(u)
-    if (!events.contains(u)) events(u) = ArrayBuffer()
+    val user = findUserByUsername(u)
+    Db.save(u.copy(events = Seq(e)))
 
-    events(u) += e
-    users.find(_ == u).get.addEvent(e)
+//    user match {
+//      case Some(User) =>
+//      case None(User) =>
+//    }
+
+//    if (!users.contains(u)) save(u)
+//    if (!events.contains(u)) events(u) = ArrayBuffer()
+//
+//    events(u) += e
+//    users.find(_ == u).get.addEvent(e)
   }
 
-  def getUsers: List[User] = users.toList
+  def getUsers: Seq[User] = Db.query[User].fetch
 
-  def showUsers: Unit = users.foreach(println)
+  def showUsers: Unit = getUsers.foreach(println)
 
   def checkEventsClash(u: User) = {
     @tailrec
