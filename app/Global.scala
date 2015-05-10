@@ -1,5 +1,4 @@
-import main.scala.com.codesynergy.domain.User
-import models.com.codesynergy.domain.{Calendar, DB}
+import models.com.codesynergy.domain.{Calendar, DB, User}
 import play.api.GlobalSettings
 
 /**
