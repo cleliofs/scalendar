@@ -12,20 +12,27 @@ import scala.concurrent.duration.Duration
 class CalendarService {
   val db = Database.forConfig("h2file")
 
-//  def getCalendar: Calendar = {
+  def getCalendar = {
 //    try {
 //      val f: Future[_] = {
 //        db.run(DBIO.seq(
-//          CalendarTable.calendar.result
+//          Calendar.calendar
 //        ))
 //      }
 //      Await.result(f, Duration.Inf)
 //
 //    } finally db.close
-//
-//  }
 
-  def getCalendar = Calendar
+    try {
+      val q = for (c <- Calendar.calendar) yield c
+      val a = q.result
+      val f: Future[Seq[Calendar]] = db.run(a)
+      Await.result(f, Duration.Inf)
+    } finally db.close
+
+  }
+
+//  def getCalendar = Calendar("New Calendar")
 
 
 }

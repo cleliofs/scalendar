@@ -22,13 +22,13 @@ object Global extends GlobalSettings {
 
     val setupAction: DBIO[Unit] = DBIO.seq(
       // create schema
-      (CalendarTable.calendar.schema ++ UserTable.users.schema ++ EventTable.events.schema).create,
+      (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).create,
 
       // insert calendar
-      CalendarTable.calendar += c,
+      Calendar.calendar += c,
 
       // insert users
-      UserTable.users ++= Seq(u1, u2, u3)
+      User.users ++= Seq(u1, u2, u3)
     )
 
     val f: Future[Unit] = db.run(setupAction)
