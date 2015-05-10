@@ -12,7 +12,7 @@ import slick.lifted.{ForeignKeyQuery, ProvenShape}
 /**
  * Created by clelio on 10/05/15.
  */
-case class Calendar(id: Option[Int] = None, name: String) {
+case class Calendar(name: String, id: Option[Int] = None) {
   implicit val calendarFormat = Json.format[Calendar]
 
 }
@@ -21,45 +21,45 @@ class CalendarTable(tag: Tag) extends Table[Calendar](tag, "CALENDAR") {
   def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
   def name = column[String]("NAME")
 
-  override def * : ProvenShape[Calendar] = (id.?, name) <> (Calendar.tupled, Calendar.unapply)
+  override def * = (name, id.?) <> (Calendar.tupled, Calendar.unapply)
 }
 
 object CalendarTable {
-  lazy val calendar = TableQuery[Calendar]
+  lazy val calendar = TableQuery[CalendarTable]
 }
 
 
 case class User(
-   id: Option[Int] = None,
    username: String,
    name: String,
    surname: String,
-   email: String,
-   company: String,
-   eventId: Int) extends Ordered[User] {
+   email: String = "",
+   company: String = "",
+   id: Option[Int] = None,
+   eventId: Option[Int] = None) extends Ordered[User] {
 
   implicit val userFormat = Json.format[User]
 
   implicit val userWrites = new Writes[User] {
     def writes(user: User) = Json.obj(
-      "id" -> user.id,
       "username" -> user.username,
       "name" -> user.name,
       "surname" -> user.surname,
       "email" -> user.email,
       "company" -> user.company,
+      "id" -> user.id,
       "eventId" -> user.eventId
     )
   }
 
   implicit  val userReads: Reads[User] = (
-    (JsPath \ "id").read[Option[Int]] and
     (JsPath \ "username").read[String] and
     (JsPath \ "name").read[String] and
     (JsPath \ "surname").read[String] and
     (JsPath \ "email").read[String] and
     (JsPath \ "company").read[String] and
-    (JsPath \ "eventId").read[Int]
+    (JsPath \ "id").read[Option[Int]] and
+    (JsPath \ "eventId").read[Option[Int]]
     )(User.apply(_, _, _ ,_ ,_ , _, _))
 
   override def toString: String = {
@@ -88,7 +88,7 @@ class UserTable(tag: Tag) extends Table[User](tag, "USERS"){
   def eventId = column[Int]("EVENT_ID")
 
   override def * : ProvenShape[User] =
-    (id.?, username, name, surname, email, company, eventId) <> (User.tupled, User.unapply)
+    (username, name, surname, email, company, id.?, eventId.?) <> (User.tupled, User.unapply)
 
   def event: ForeignKeyQuery[EventTable, Event] = foreignKey("EVENT_FK", eventId, EventTable.events)(_.id)
 
@@ -104,7 +104,7 @@ object UserTable {
 }
 
 
-case class Event(id: Option[Int] = None, title: String, startDate: Date, endDate: Date) {
+case class Event(title: String, startDate: Date, endDate: Date, id: Option[Int] = None) {
   implicit val dateRead = Reads.jodaDateReads(pattern)
 
   val pattern = "dd/MM/yyyy HH:mm:ss";
@@ -113,18 +113,18 @@ case class Event(id: Option[Int] = None, title: String, startDate: Date, endDate
 
   implicit val eventWrites = new Writes[Event] {
     def writes(event: Event) = Json.obj(
-      "id" -> event.id,
       "title" -> event.title,
       "startDate" -> event.toString,
-      "endDate" -> event.toString
+      "endDate" -> event.toString,
+      "id" -> event.id
     )
   }
 
   implicit  val eventReads: Reads[Event] = (
-    (JsPath \ "id").read[Option[Int]] and
     (JsPath \ "title").read[String] and
     (JsPath \ "startDate").read[Date] and
-    (JsPath \ "endDate").read[Date]
+    (JsPath \ "endDate").read[Date] and
+    (JsPath \ "id").read[Option[Int]]
   )(Event.apply(_, _, _, _))
 
   override def toString: String = {
@@ -141,13 +141,10 @@ class EventTable(tag: Tag) extends Table[Event](tag, "EVENTS") {
   def endDate: Rep[Date] = column[Date]("END_DATE")
 
   override def * : ProvenShape[Event] =
-    (id.?, title, startDate, endDate) <> (Event.tupled, Event.unapply)
+    (title, startDate, endDate, id.?) <> (Event.tupled, Event.unapply)
 
 }
 
 object EventTable {
   lazy val events = TableQuery[EventTable]
 }
-
-
-
