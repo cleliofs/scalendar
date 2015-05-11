@@ -7,12 +7,9 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 scalaVersion := "2.11.6"
 
 libraryDependencies ++= Seq(
-//  jdbc,
-//  anorm,
-//  cache,
-//  ws,
-  "com.h2database" % "h2" % "1.3.168",
-  "org.sorm-framework" % "sorm" % "0.3.18",
+  "com.typesafe.slick" %% "slick" % "3.0.0",
+  "org.slf4j" % "slf4j-nop" % "1.6.4",
+  "com.h2database" % "h2" % "1.3.175",
   "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test"
 )
 
