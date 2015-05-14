@@ -40,7 +40,14 @@ object Application extends Controller {
   }
 
   def getUserByUsername(username: String) = Action {
-    Ok(Json.toJson(calendarService.getUserByUsername(username)))
+    calendarService.getUserByUsername(username).map { user: User =>
+      Ok(Json.toJson(user))
+    }.getOrElse {
+      NotFound(Json.toJson(
+        Map("status" -> "OK", "message" -> s"User not found [$username]")
+      )
+      )
+    }
   }
 
   def saveUser = Action(parse.json) { request =>

@@ -1,6 +1,6 @@
 package main.scala.com.codesynergy.service
 
-import models.com.codesynergy.domain.{Calendar, User}
+import models.com.codesynergy.domain.{UserTable, Calendar, User}
 import slick.driver.H2Driver.api._
 
 import scala.concurrent.duration.Duration
@@ -23,7 +23,7 @@ class CalendarService {
     Await.result(db.run(q.result), Duration.Inf)
   }
 
-  def getUserByUsername(username: String) = {
+  def getUserByUsername(username: String): Option[User] = {
 
     val userByUsernameCompiled = Compiled { username: Rep[String] =>
       User.users.filter(_.username === username)
@@ -31,8 +31,7 @@ class CalendarService {
 
     val q = userByUsernameCompiled(username)
 
-    Await.result(db.run(q.result), Duration.Inf)
-
+    Await.result(db.run(q.result), Duration.Inf).headOption
   }
 
   def exists(user: User) = {
