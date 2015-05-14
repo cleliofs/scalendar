@@ -13,30 +13,26 @@ class CalendarService {
   val db = Database.forConfig("h2mem1")
 
   def getCalendar: Seq[Calendar] = {
-    val q = for (c <- Calendar.calendar) yield c
+    val q = Calendar.calendar
     val f: Future[Seq[Calendar]] = db.run(q.result)
     Await.result(f, Duration.Inf)
   }
 
   def getUsers: Seq[User] = {
-    Await.result(db.run(User.users.result), Duration.Inf)
+    val q = User.users
+    Await.result(db.run(q.result), Duration.Inf)
   }
 
   def getUserByUsername(username: String) = {
-//    val user = for {
-//      username <- Parameters[String]
-//      u <- User.users if u.username == username
-//    } yield u
 
-    def userByUsername(username: Rep[String]) = for {
-      u <- User.users if u.username == username
-    } yield u
+    val userByUsernameCompiled = Compiled { username: Rep[String] =>
+      User.users.filter(_.username === username)
+    }
 
-    val userByUsernameCompiled = Compiled(userByUsername _)
+    val q = userByUsernameCompiled(username)
 
-    userByUsernameCompiled(username).run
+    Await.result(db.run(q.result), Duration.Inf)
 
-//    Await.result(db.run(user(username).result), Duration.Inf)
   }
 
 }
