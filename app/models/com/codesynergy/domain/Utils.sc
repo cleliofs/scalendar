@@ -14,3 +14,13 @@ d1.toString(pattern)
 val l = List(1, 2 ,3)
 
 l.find( (i: Int) => i == 3)
+
+val opt: Option[Int] = Some(1)
+//val opt: Option[Int] = None
+opt.map {
+  i: Int => i + 1
+}.getOrElse {
+  println("Not Found")
+}
+
+opt.map(i => i + 1).getOrElse(println("Not Found"))
