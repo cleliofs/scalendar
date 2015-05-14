@@ -2,6 +2,7 @@ import models.com.codesynergy.domain._
 import play.api.GlobalSettings
 import slick.dbio.DBIO
 import slick.driver.H2Driver.api._
+import slick.jdbc.meta.MTable
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -17,22 +18,25 @@ object Global extends GlobalSettings {
   val u2 = User("josi", "Josirene", "Souza")
   val u3 = User("marcel", "Marcel", "Sato")
 
-  val db = Database.forConfig("h2file")
+  val db = Database.forConfig("h2mem1")
   try {
 
-    val setupAction: DBIO[Unit] = DBIO.seq(
-      // create schema
-      (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).create,
+//    val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
 
-      // insert calendar
-      Calendar.calendar += c,
+    import scala.concurrent.ExecutionContext.Implicits.global
+      val setupAction: DBIO[Unit] = DBIO.seq(
+        // create schema
+        (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).create,
 
-      // insert users
-      User.users ++= Seq(u1, u2, u3)
-    )
+        // insert calendar
+        Calendar.calendar += c,
 
-    val f: Future[Unit] = db.run(setupAction)
-    Await.result(f, Duration.Inf)
+        // insert users
+        User.users ++= Seq(u1, u2, u3)
+      )
+
+      val f: Future[Unit] = db.run(setupAction)
+      Await.result(f, Duration.Inf)
 
   } finally db.close
 

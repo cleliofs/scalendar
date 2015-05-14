@@ -34,5 +34,13 @@ object Application extends Controller {
 
   }
 
+  def getUsers = Action { request =>
+    Ok(Json.toJson(calendarService.getUsers))
+  }
+
+  def getUserByUsername(username: String) = Action {
+    Ok(Json.toJson(calendarService.getUserByUsername(username)))
+  }
+
 
 }

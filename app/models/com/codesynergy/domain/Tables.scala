@@ -51,27 +51,29 @@ case class User(
 }
 
 object User {
+//  implicit val userFormat = Json.format[User]
+//
+//  implicit val userWrites = new Writes[User] {
+//    def writes(user: User) = Json.obj(
+//      "username" -> user.username,
+//      "name" -> user.name,
+//      "surname" -> user.surname,
+//      "email" -> user.email,
+//      "company" -> user.company,
+//      "id" -> user.id
+//    )
+//  }
+//
+//  implicit  val userReads: Reads[User] = (
+//    (JsPath \ "username").read[String] and
+//      (JsPath \ "name").read[String] and
+//      (JsPath \ "surname").read[String] and
+//      (JsPath \ "email").read[String] and
+//      (JsPath \ "company").read[String] and
+//      (JsPath \ "id").read[Option[Int]]
+//    )(User.apply(_, _, _ ,_ ,_ , _))
+
   implicit val userFormat = Json.format[User]
-
-  implicit val userWrites = new Writes[User] {
-    def writes(user: User) = Json.obj(
-      "username" -> user.username,
-      "name" -> user.name,
-      "surname" -> user.surname,
-      "email" -> user.email,
-      "company" -> user.company,
-      "id" -> user.id
-    )
-  }
-
-  implicit  val userReads: Reads[User] = (
-    (JsPath \ "username").read[String] and
-      (JsPath \ "name").read[String] and
-      (JsPath \ "surname").read[String] and
-      (JsPath \ "email").read[String] and
-      (JsPath \ "company").read[String] and
-      (JsPath \ "id").read[Option[Int]]
-    )(User.apply(_, _, _ ,_ ,_ , _))
 
   lazy val users = TableQuery[UserTable]
 
