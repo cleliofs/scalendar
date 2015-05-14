@@ -10,3 +10,7 @@ d1.toString(pattern)
 //  i <- Seq[Int]
 //  v <- (0 to i)
 //} yield println(v)
+
+val l = List(1, 2 ,3)
+
+l.find( (i: Int) => i == 3)

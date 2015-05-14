@@ -1,7 +1,8 @@
 package controllers
 
 import main.scala.com.codesynergy.service.CalendarService
-import play.api.libs.json.Json
+import models.com.codesynergy.domain.User
+import play.api.libs.json.{JsError, Json}
 import play.api.mvc.{Action, Controller}
 import views.html
 
@@ -41,6 +42,56 @@ object Application extends Controller {
   def getUserByUsername(username: String) = Action {
     Ok(Json.toJson(calendarService.getUserByUsername(username)))
   }
+
+  def saveUser = Action(parse.json) { request =>
+    val result = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors))),
+      user => {
+        if (calendarService.exists(user)) {
+          BadRequest(Json.obj("Status" -> "302 (Found)", "message" -> (user + " user already exists.")))
+        } else {
+          calendarService.save(user)
+          Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+        }
+
+      }
+    )
+
+  }
+
+  def updateUser(username: String) = Action(parse.json) { request =>
+    val result = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors))),
+      user => {
+        if (!calendarService.exists(user)) {
+          BadRequest(Json.obj("Status" -> "404 (Not Found)", "message" -> (user + " user not found.")))
+        } else {
+          calendarService.updateUser(username, user)
+          Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+        }
+      }
+    )
+
+  }
+
+  def updateUserEmail(username: String) = Action(parse.json) { request =>
+    val result = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors))),
+      user => {
+        if (!calendarService.exists(user)) {
+          BadRequest(Json.obj("Status" -> "404 (Not Found)", "message" -> (user + " user not found.")))
+        } else {
+          calendarService.updateUserEmail(username, user.email)
+          Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+        }
+      }
+    )
+
+  }
+
 
 
 }

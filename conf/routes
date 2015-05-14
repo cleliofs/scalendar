@@ -7,8 +7,10 @@ GET     /                           controllers.Application.index
 GET     /hello                      controllers.Application.hello
 GET     /calendar                   controllers.Application.getCalendar
 GET     /users                      controllers.Application.getUsers
-#PUT     /users                      controllers.Application.saveUser
+PUT     /users                      controllers.Application.saveUser
 GET     /users/:username            controllers.Application.getUserByUsername(username: String)
+PUT     /users/:username            controllers.Application.updateUser(username: String)
+PUT     /users/:username/email       controllers.Application.updateUserEmail(username: String)
 #GET     /users/:username/events     controllers.Application.getEventsByUsername(username: String)
 #PUT     /users/:username/events     controllers.Application.addEvent(username: String)
 #POST    /sayHello                   controllers.Application.sayHello

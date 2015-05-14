@@ -21,10 +21,11 @@ object Global extends GlobalSettings {
   val db = Database.forConfig("h2mem1")
   try {
 
-//    val tables = Await.result(db.run(MTable.getTables), Duration.Inf).toList
-
-    import scala.concurrent.ExecutionContext.Implicits.global
       val setupAction: DBIO[Unit] = DBIO.seq(
+        // drop schema if exists
+//        (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).drop,
+
+
         // create schema
         (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).create,
 
