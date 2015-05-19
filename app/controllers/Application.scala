@@ -1,16 +1,14 @@
 package controllers
 
-import java.lang.NullPointerException
-
 import main.scala.com.codesynergy.service.CalendarService
 import models.com.codesynergy.domain.{Calendar, User}
 import play.api.libs.concurrent.Execution.Implicits._
-import play.api.libs.json.{JsResult, JsError, Json}
+import play.api.libs.json.{JsError, JsResult, Json}
 import play.api.mvc.{Action, AnyContent, Controller, Result}
 import views.html
-import scala.concurrent.duration._
 
-import scala.concurrent.{Promise, Future}
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 object Application extends Controller {
 
@@ -27,12 +25,9 @@ object Application extends Controller {
 
   def sayHello = Action(parse.json) { request =>
       (request.body \ "name").asOpt[String].map { name: String =>
-        Ok(Json.toJson(Map("status" -> "OK", "message" -> (s"Hello $name"))))
+        Ok(Json.obj("status" -> OK, "message" -> (s"Hello $name")))
       }.getOrElse {
-        BadRequest(Json.toJson(
-          Map("status" -> "400", "message" -> "Missing parameter [name]")
-          )
-        )
+        BadRequest(Json.obj("status" -> BAD_REQUEST, "message" -> "Missing parameter [name]"))
       }
   }
 
@@ -59,16 +54,13 @@ object Application extends Controller {
     val userFuture: Future[Option[User]] = calendarService.getUserByUsername(username) map { s: Seq[User] => s.headOption }
     val resultFuture: Future[Result] = userFuture map {
       case u: Option[User] if u.nonEmpty => Ok(Json.toJson(u.get))
-      case None => NotFound(Json.toJson(
-            Map("status" -> "OK", "message" -> s"User not found [$username]")
-          )
-        )
+      case None => NotFound(Json.obj("status" -> OK, "message" -> s"User not found [$username]"))
     }
 
     resultFuture
   }
 
-  def saveUser = Action.async(parse.json) { request =>
+  def saveUserWithoutAwait = Action.async(parse.json) { request =>
     val validateFuture: Future[JsResult[User]] = Future { request.body.validate[User] }
     def existsFuture(user: User): Future[Boolean] = calendarService.existsWithoutAwait(user)
     def saveUserFuture(user: User) = calendarService.save(user)
@@ -78,7 +70,7 @@ object Application extends Controller {
       e <- existsFuture(v.get) if e == false
     } yield {
         saveUserFuture(v.get)
-        Ok(Json.obj("status" -> "OK", "message" -> (v.get + " saved.")))
+        Ok(Json.obj("status" -> OK, "message" -> (v.get + " saved.")))
       }
     eventualResult recover {
       case _ => BadRequest(Json.obj("Status" -> s"$FOUND (Found)", "message" -> (" user already exists.")))
@@ -86,6 +78,24 @@ object Application extends Controller {
 
 
   }
+
+  def saveUser = Action(parse.json) { request =>
+    val result = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> BAD_REQUEST, "message" -> JsError.toFlatJson(errors))),
+      user => {
+        if (calendarService.exists(user)) {
+          BadRequest(Json.obj("Status" -> s"$FOUND (Found)", "message" -> (user + " user already exists.")))
+        } else {
+          calendarService.save(user)
+          Ok(Json.obj("status" -> OK, "message" -> (user + " saved.")))
+        }
+
+      }
+    )
+
+  }
+
 
   def updateUser(username: String) = Action.async(parse.json) { request =>
     Future {
@@ -97,7 +107,7 @@ object Application extends Controller {
             BadRequest(Json.obj("Status" -> "404 (Not Found)", "message" -> (user + " user not found.")))
           } else {
             calendarService.updateUser(username, user)
-            Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+            Ok(Json.obj("status" -> OK, "message" -> (user + " saved.")))
           }
         }
       )
@@ -113,7 +123,7 @@ object Application extends Controller {
           BadRequest(Json.obj("Status" -> "404 (Not Found)", "message" -> (user + " user not found.")))
         } else {
           calendarService.updateUserEmail(username, user.email)
-          Ok(Json.obj("status" -> "OK", "message" -> (user + " saved.")))
+          Ok(Json.obj("status" -> OK, "message" -> (user + " saved.")))
         }
       }
     )
