@@ -5,6 +5,8 @@ import slick.driver.H2Driver.api._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by clelio on 19/04/15.
@@ -12,26 +14,42 @@ import scala.concurrent.{Await, Future}
 class CalendarService {
   val db = Database.forConfig("h2mem1")
 
-  def getCalendar: Seq[Calendar] = {
+  def getCalendar: Future[Seq[Calendar]] = {
     val q = Calendar.calendar
     val f: Future[Seq[Calendar]] = db.run(q.result)
-    Await.result(f, Duration.Inf)
+    f
   }
 
-  def getUsers: Seq[User] = {
+  def getUsers: Future[Seq[User]] = {
     val q = User.users
-    Await.result(db.run(q.result), Duration.Inf)
+
+    val eventualUnit: Future[Seq[User]] = Future {
+      println("Do something expensive first...")
+      Thread.sleep(1500)
+      Seq()
+    }
+    for {
+      e <- eventualUnit
+      r <- db.run(q.result)
+    } yield r
+
+//    db.run(q.result)
   }
 
-  def getUserByUsername(username: String): Option[User] = {
-
+  def getUserByUsername(username: String): Future[Seq[User]] = {
     val userByUsernameCompiled = Compiled { username: Rep[String] =>
       User.users.filter(_.username === username)
     }
 
     val q = userByUsernameCompiled(username)
 
-    Await.result(db.run(q.result), Duration.Inf).headOption
+    val f: Future[Seq[User]] = db.run(q.result)
+    f
+  }
+
+  def existsWithoutAwait(user: User) = {
+    val q = User.users.filter(_.username === user.username).exists
+    db.run(q.result)
   }
 
   def exists(user: User) = {
@@ -40,15 +58,15 @@ class CalendarService {
   }
 
   def save(user: User) = {
-    Await.result(db.run(User.users += user), Duration.Inf)
+    db.run(User.users += user)
   }
 
   def updateUser(username: String, user: User) = {
-    Await.result(db.run(User.users.filter(_.username === username).map(u => u).update(user)), Duration.Inf)
+    db.run(User.users.filter(_.username === username).map(u => u).update(user))
   }
 
   def updateUserEmail(username: String, email: String) = {
-    Await.result(db.run(User.users.filter(_.username === username).map(u => u.email).update(email)), Duration.Inf)
+    db.run(User.users.filter(_.username === username).map(u => u.email).update(email))
   }
 
 }
