@@ -1,12 +1,10 @@
 package main.scala.com.codesynergy.service
 
-import models.com.codesynergy.domain.{UserTable, Calendar, User}
+import models.com.codesynergy.domain.{Calendar, User}
 import slick.driver.H2Driver.api._
-
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 
 /**
  * Created by clelio on 19/04/15.
@@ -54,6 +52,8 @@ class CalendarService {
 
   def exists(user: User) = {
     val q = User.users.filter(_.username === user.username).exists
+    import scala.concurrent.duration._
+    import scala.concurrent.Await
     Await.result(db.run(q.result), Duration.Inf)
   }
 
@@ -70,3 +70,4 @@ class CalendarService {
   }
 
 }
+
