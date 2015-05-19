@@ -1,10 +1,14 @@
 package controllers
 
 import main.scala.com.codesynergy.service.CalendarService
-import models.com.codesynergy.domain.User
+import models.com.codesynergy.domain.{Calendar, User}
+import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsError, Json}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, AnyContent, Controller, Result}
 import views.html
+import scala.concurrent.duration._
+
+import scala.concurrent.Future
 
 object Application extends Controller {
 
@@ -30,13 +34,19 @@ object Application extends Controller {
       }
   }
 
-  def getCalendar = Action { request =>
-    Ok(Json.toJson(calendarService.getCalendar))
-
+  def getCalendar: Action[AnyContent] = Action.async {
+    val calendarFuture: Future[Seq[Calendar]] = Future { calendarService.getCalendar }
+    val resultFuture: Future[Result] = calendarFuture.map(c => Ok(Json.toJson(c)))
+    resultFuture
   }
 
-  def getUsers = Action { request =>
-    Ok(Json.toJson(calendarService.getUsers))
+  def getUsers: Action[AnyContent] = Action.async {
+    val usersFuture: Future[Seq[User]] = scala.concurrent.Future { calendarService.getUsers }
+    val timeoutFuture = play.api.libs.concurrent.Promise.timeout("Timeout", 2 second)
+    Future.firstCompletedOf(Seq(usersFuture, timeoutFuture)).map {
+      case users: Seq[User] => Ok(Json.toJson(users))
+      case t: String => InternalServerError(t)
+    }
   }
 
   def getUserByUsername(username: String) = Action {

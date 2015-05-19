@@ -23,8 +23,7 @@ object Global extends GlobalSettings {
 
       val setupAction: DBIO[Unit] = DBIO.seq(
         // drop schema if exists
-//        (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).drop,
-
+        (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).drop,
 
         // create schema
         (Calendar.calendar.schema ++ User.users.schema ++ Event.events.schema).create,
