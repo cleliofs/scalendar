@@ -1,7 +1,7 @@
 package controllers
 
 import main.scala.com.codesynergy.service.CalendarService
-import models.com.codesynergy.domain.{Calendar, User}
+import models.com.codesynergy.domain.{Event, Calendar, User}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.{JsError, JsResult, Json}
 import play.api.mvc.{Action, AnyContent, Controller, Result}
@@ -35,6 +35,10 @@ object Application extends Controller {
     val calendarFuture: Future[Seq[Calendar]] = calendarService.getCalendar
     val resultFuture: Future[Result] = calendarFuture.map(c => Ok(Json.toJson(c)))
     resultFuture
+  }
+
+  def getCalendarUsers(id: Int) = Action.async {
+    calendarService.getCalendarUsers(id).map(u => Ok(Json.toJson(u)))
   }
 
   def getUsers: Action[AnyContent] = Action.async {
@@ -130,6 +134,13 @@ object Application extends Controller {
 
   }
 
+  def getEventsByUsername(username: String) = Action.async {
+    val eventsFuture: Future[Seq[Event]] = calendarService.getEventsByUsername(username)
+    val resultFuture: Future[Result] = eventsFuture map {
+      e => Ok(Json.toJson(e))
+    }
+    resultFuture
+  }
 
 
 }

@@ -1,39 +1,38 @@
 package models.com.codesynergy.domain
 
-import java.sql.Date
-import java.text.SimpleDateFormat
-
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsPath, Json, Reads, Writes}
+import play.api.libs.json.Json
 import slick.driver.H2Driver.api._
-import slick.lifted.{ForeignKeyQuery, ProvenShape}
+import slick.lifted.ProvenShape
 
 
-/**
- * Created by clelio on 10/05/15.
- */
-case class Calendar(name: String, id: Option[Int] = None)
+// CALENDAR table
+case class Calendar(id: Int, name: String)
 
 object Calendar {
-  lazy val calendar = TableQuery[CalendarTable]
+  lazy val query = TableQuery[CalendarTable]
   implicit val calendarFormat = Json.format[Calendar]
 }
 
 class CalendarTable(tag: Tag) extends Table[Calendar](tag, "CALENDAR") {
-  def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  def id = column[Int]("ID", O.PrimaryKey)
   def name = column[String]("NAME")
 
-  override def * = (name, id.?) <> ((Calendar.apply _).tupled, Calendar.unapply)
+  override def * = (id, name) <> ((Calendar.apply _).tupled, Calendar.unapply)
+  
+  def users = User.query.filter(_.calendarId === id).flatMap(_.calendarFk)
 }
 
 
+
+// USER table
 case class User(
-   username: String,
-   name: String,
-   surname: String,
-   email: String = "",
-   company: String = "",
-   id: Option[Int] = None) extends Ordered[User] {
+    id: Int,
+    username: String,
+    name: String,
+    surname: String,
+    email: String = "",
+    company: String = "",
+    calendarId: Option[Int] = None) extends Ordered[User] {
 
   override def toString: String = {
     s"Username: $username - Email: $email ($name $surname - $company) - Events: [TODO]"
@@ -51,97 +50,79 @@ case class User(
 }
 
 object User {
-//  implicit val userFormat = Json.format[User]
-//
-//  implicit val userWrites = new Writes[User] {
-//    def writes(user: User) = Json.obj(
-//      "username" -> user.username,
-//      "name" -> user.name,
-//      "surname" -> user.surname,
-//      "email" -> user.email,
-//      "company" -> user.company,
-//      "id" -> user.id
-//    )
-//  }
-//
-//  implicit  val userReads: Reads[User] = (
-//    (JsPath \ "username").read[String] and
-//      (JsPath \ "name").read[String] and
-//      (JsPath \ "surname").read[String] and
-//      (JsPath \ "email").read[String] and
-//      (JsPath \ "company").read[String] and
-//      (JsPath \ "id").read[Option[Int]]
-//    )(User.apply(_, _, _ ,_ ,_ , _))
-
   implicit val userFormat = Json.format[User]
+  lazy val query = TableQuery[UserTable]
 
-  lazy val users = TableQuery[UserTable]
-
-//  implicit class UserExtension[C[_]](q: Query[UserTable, User, C]) {
-//    def withEvents = q.join(Event.events).on(_.eventId === _.id)
-//  }
-
+  def findEventsForUser(username: String) = for {
+    u <- query.filter(u => u.username === username)
+    ue <- UserEvent.query.filter(ue => ue.userId === u.id)
+    e <- Event.query.filter(e => e.id === ue.eventId)
+  } yield e
 }
 
 class UserTable(tag: Tag) extends Table[User](tag, "USERS"){
 
-  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey)
   def username: Rep[String] = column[String]("USERNAME")
   def name: Rep[String] = column[String]("NAME")
   def surname: Rep[String] = column[String]("SURNAME")
   def email: Rep[String] = column[String]("EMAIL")
   def company: Rep[String] = column[String]("COMPANY")
-//  def eventId = column[Int]("EVENT_ID")
+  def calendarId: Rep[Option[Int]] = column[Option[Int]]("CALENDAR_ID")
 
   override def * : ProvenShape[User] =
-    (username, name, surname, email, company, id.?) <> ((User.apply _)tupled, User.unapply)
+    (id, username, name, surname, email, company, calendarId) <> ((User.apply _).tupled, User.unapply)
 
-//  def event: ForeignKeyQuery[EventTable, Event] = foreignKey("EVENT_FK", eventId, Event.events)(_.id)
+  def calendarFk = foreignKey("calendar_fk", calendarId, Calendar.query)(c => c.id)
+  
+  def events = UserEvent.query.filter(_.userId === id).flatMap(_.eventFk)
 
 }
 
 
-case class Event(title: String, startDate: Date, endDate: Date, id: Option[Int] = None) {
+// USERS_EVENTS mapping table
+case class UserEvent(userId: Int, eventId: Int)
+
+class UserEventTable(tag: Tag) extends Table[UserEvent](tag, "USERS_EVENTS") {
+  def userId: Rep[Int] = column[Int]("USER_ID")
+  def eventId: Rep[Int] = column[Int]("EVENT_ID")
+
+  override def * : ProvenShape[UserEvent] = (userId, eventId) <> ((UserEvent.apply _).tupled, UserEvent.unapply)
+
+  def userFk = foreignKey("user_fk", userId, User.query)(u => u.id)
+  def eventFk = foreignKey("event_fk", eventId, Event.query)(e => e.id)
+}
+
+object UserEvent {
+  lazy val query = TableQuery[UserEventTable]
+}
+
+
+
+// EVENT table
+case class Event(id: Int, title: String, userOwnerId: Int) {
 
   override def toString: String = {
-    s"Event: $title (Start Date: ${startDate.toString} - End Date: ${endDate.toString})"
+    s"Event: $title"
   }
 
 }
 
 object Event {
-
-  val pattern = "dd/MM/yyyy HH:mm:ss";
-  val formatter = new SimpleDateFormat(pattern)
-
-  implicit val eventWrites = new Writes[Event] {
-    def writes(event: Event) = Json.obj(
-      "title" -> event.title,
-      "startDate" -> event.toString,
-      "endDate" -> event.toString,
-      "id" -> event.id
-    )
-  }
-
-  implicit  val eventReads: Reads[Event] = (
-    (JsPath \ "title").read[String] and
-      (JsPath \ "startDate").read[Date] and
-      (JsPath \ "endDate").read[Date] and
-      (JsPath \ "id").read[Option[Int]]
-    )(Event.apply(_, _, _, _))
-
-
-  lazy val events = TableQuery[EventTable]
+  lazy val query = TableQuery[EventTable]
+  implicit val eventFormat = Json.format[Event]
 }
 
 class EventTable(tag: Tag) extends Table[Event](tag, "EVENTS") {
 
-  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey)
   def title: Rep[String] = column[String]("TITLE")
-  def startDate: Rep[Date] = column[Date]("START_DATE")
-  def endDate: Rep[Date] = column[Date]("END_DATE")
+  def userOwnerId: Rep[Int] = column[Int]("USER_OWNER_ID")
 
   override def * : ProvenShape[Event] =
-    (title, startDate, endDate, id.?) <> ((Event.apply _).tupled, Event.unapply)
+    (id, title, userOwnerId) <> ((Event.apply _).tupled, Event.unapply)
+
+  def userOwner = User.query.filter(_.id === userOwnerId)
+  def userGuests = UserEvent.query.filter(_.eventId === id).flatMap(_.userFk)
 
 }
