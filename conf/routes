@@ -8,6 +8,7 @@ GET     /hello                                          controllers.Application.
 POST    /sayHello                                       controllers.Application.sayHello
 GET     /calendar                                       controllers.Application.getCalendar
 GET     /calendar/:id/users                             controllers.Application.getCalendarUsers(id: Int)
+PUT     /calendar/:id/users                             controllers.Application.addUserToCalendar(id: Int)
 GET     /users                                          controllers.Application.getUsers
 PUT     /users                              controllers.Application.saveUser
 GET     /users/:username                    controllers.Application.getUserByUsername(username: String)

@@ -142,5 +142,20 @@ object Application extends Controller {
     resultFuture
   }
 
+  def addUserToCalendar(calendarId: Int) = Action(parse.json) { request =>
+    val result = request.body.validate[User]
+    result.fold(
+      errors => BadRequest(Json.obj("status" -> "400", "message" -> JsError.toFlatJson(errors))),
+      user => {
+        if (!calendarService.exists(user)) {
+          BadRequest(Json.obj("Status" -> "404 (Not Found)", "message" -> (user + " user not found.")))
+        } else {
+          calendarService.addUserToCalendar(user.username, calendarId)
+          Ok(Json.obj("status" -> OK, "message" -> (user + " added to calendar.")))
+        }
+      }
+    )
+  }
+
 
 }

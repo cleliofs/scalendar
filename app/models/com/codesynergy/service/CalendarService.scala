@@ -35,8 +35,6 @@ class CalendarService {
       e <- eventualUnit
       r <- db.run(q.result)
     } yield r
-
-//    db.run(q.result)
   }
 
   def getUserByUsername(username: String): Future[Seq[User]] = {
@@ -62,6 +60,10 @@ class CalendarService {
     Await.result(db.run(q.result), Duration.Inf)
   }
 
+  def userExistsInCalendar(user: User) = {
+    ???
+  }
+
   def save(user: User) = {
     db.run(User.query += user)
   }
@@ -74,13 +76,14 @@ class CalendarService {
     db.run(User.query.filter(_.username === username).map(u => u.email).update(email))
   }
 
+  def addUserToCalendar(username: String, calendarId: Int) = {
+    db.run(User.query.filter(_.username === username).map(u => u.calendarId).update(Some(calendarId)))
+  }
+
   def getEventsByUsername(username: String) = {
-//    val q = for {
-//      u <- User.query.filter(_.username === username)
-//      e <- Event.query if (u.id === e.userOwnerId)
-//    } yield e
-    val q = User.findEventsForUser(username)
-    db.run(q.result)
+    val q1 = User.findEventsUserIsOwner(username)
+    val q2 = User.findEventsForUser(username)
+    db.run(((q1 union q2).sortBy(e => e.id)).result)
   }
 
 }

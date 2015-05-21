@@ -1,10 +1,7 @@
-import java.sql.Date
-
 import models.com.codesynergy.domain._
 import play.api.GlobalSettings
 import slick.dbio.DBIO
 import slick.driver.H2Driver.api._
-import slick.jdbc.meta.MTable
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -25,7 +22,7 @@ object Global extends GlobalSettings {
   val e3 = Event(3, "Third Event", 2)
 
   val u1_e1 = UserEvent(1, 1)
-  val u1_e2 = UserEvent(1, 2)
+  val u1_e3 = UserEvent(1, 3)
   val u2_e1 = UserEvent(2, 1)
 
 
@@ -49,7 +46,7 @@ object Global extends GlobalSettings {
         Event.query ++= Seq(e1, e2, e3),
 
         // insert users_events
-        UserEvent.query ++= Seq(u1_e1, u1_e2, u2_e1)
+        UserEvent.query ++= Seq(u1_e1, u1_e3, u2_e1)
       )
 
       val f: Future[Unit] = db.run(setupAction)

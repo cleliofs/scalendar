@@ -18,8 +18,7 @@ class CalendarTable(tag: Tag) extends Table[Calendar](tag, "CALENDAR") {
   def name = column[String]("NAME")
 
   override def * = (id, name) <> ((Calendar.apply _).tupled, Calendar.unapply)
-  
-  def users = User.query.filter(_.calendarId === id).flatMap(_.calendarFk)
+
 }
 
 
@@ -53,16 +52,21 @@ object User {
   implicit val userFormat = Json.format[User]
   lazy val query = TableQuery[UserTable]
 
-  def findEventsForUser(username: String) = for {
+  def findEventsUserIsOwner(username: String) = for {
     u <- query.filter(u => u.username === username)
-    ue <- UserEvent.query.filter(ue => ue.userId === u.id)
-    e <- Event.query.filter(e => e.id === ue.eventId)
+    e <- Event.query.filter(e => e.userOwnerId === u.id)
+  } yield e
+
+  def findEventsForUser(username: String) = for {
+    u <- query.filter(_.username === username)
+    ue <- UserEvent.query.filter(_.userId === u.id)
+    e <- Event.query.filter(_.id === ue.eventId)
   } yield e
 }
 
 class UserTable(tag: Tag) extends Table[User](tag, "USERS"){
 
-  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey)
+  def id: Rep[Int] = column[Int]("ID", O.PrimaryKey, O.AutoInc)
   def username: Rep[String] = column[String]("USERNAME")
   def name: Rep[String] = column[String]("NAME")
   def surname: Rep[String] = column[String]("SURNAME")
@@ -75,8 +79,6 @@ class UserTable(tag: Tag) extends Table[User](tag, "USERS"){
 
   def calendarFk = foreignKey("calendar_fk", calendarId, Calendar.query)(c => c.id)
   
-  def events = UserEvent.query.filter(_.userId === id).flatMap(_.eventFk)
-
 }
 
 
@@ -121,8 +123,5 @@ class EventTable(tag: Tag) extends Table[Event](tag, "EVENTS") {
 
   override def * : ProvenShape[Event] =
     (id, title, userOwnerId) <> ((Event.apply _).tupled, Event.unapply)
-
-  def userOwner = User.query.filter(_.id === userOwnerId)
-  def userGuests = UserEvent.query.filter(_.eventId === id).flatMap(_.userFk)
 
 }
