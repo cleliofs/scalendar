@@ -39,10 +39,15 @@ case class User(
 
   override def compare(that: User): Int = username.compareTo(that.username)
 
-  override def hashCode(): Int = 41 * username.hashCode
+  override def hashCode: Int = {
+    val prime = 31
+    var result = 1
+    result = prime * result + (if(username == null) 0 else username.hashCode)
+    result
+  }
 
-  override def equals(other: scala.Any): Boolean = other match {
-    case that: User => username.equals(that.username)
+  override def equals(that: scala.Any): Boolean = that match {
+    case that: User => that.canEqual(this) && this.hashCode == that.hashCode
     case _ => false
   }
 

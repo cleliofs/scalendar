@@ -24,3 +24,12 @@ opt.map {
 }
 
 opt.map(i => i + 1).getOrElse(println("Not Found"))
+
+"1, 2, 3".split(",").toList.sorted
+
+" all this chars: (1,2,4)".r match {
+  case : Int => println(n)
+}
+
+
+

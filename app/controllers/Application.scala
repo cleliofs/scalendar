@@ -116,6 +116,7 @@ object Application extends Controller {
         }
       )
     }
+
   }
 
   def updateUserEmail(username: String) = Action(parse.json) { request =>
